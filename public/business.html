@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Our Business – FitCoach</title>
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+</head>
+<body>
+  <!-- ── NAVBAR ── -->
+  <nav class="navbar">
+    <div class="nav-inner">
+      <a href="index.html" class="logo">FitCoach</a>
+      <ul class="nav-links" id="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="problem.html">Problem</a></li>
+        <li><a href="solution.html">Solution</a></li>
+        <li><a href="business.html" class="active">Business</a></li>
+        <li><a href="pricing.html">Pricing</a></li>
+        <li><a href="customers.html">Customers</a></li>
+        <li id="nav-auth-guest"><a href="login.html">Log In</a></li>
+        <li id="nav-auth-user" hidden><a href="account.html">My Account</a></li>
+        <li><a href="register.html" class="btn-nav">Sign Up</a></li>
+      </ul>
+      <button class="nav-toggle" id="nav-toggle" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="nav-links">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ── UNFAIR ADVANTAGE ── -->
+  <section class="section" id="advantage">
+    <div class="section-inner two-col">
+      <div class="section-label">Unfair Advantage</div>
+      <div>
+        <h2>Why we're different — and why it lasts.</h2>
+        <ul class="advantage-list">
+          <li><strong>Proprietary algorithm</strong> for personalized plan generation</li>
+          <li><strong>Strong community</strong> with deep user engagement</li>
+          <li><strong>Strategic partnerships</strong> with certified trainers and gyms</li>
+          <li>Continuously learning from user behavior to get smarter over time</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── COST STRUCTURE ── -->
+  <section class="section alt-bg" id="costs">
+    <div class="section-inner two-col">
+      <div class="section-label">Cost Structure</div>
+      <div>
+        <h2>What it takes to build this.</h2>
+        <ul class="problem-list">
+          <li>App development &amp; maintenance</li>
+          <li>Trainer &amp; content production</li>
+          <li>Marketing &amp; user acquisition</li>
+          <li>Cloud infrastructure &amp; tools</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── NEXT PAGE ── -->
+  <section class="section next-link-section">
+    <div class="section-inner center">
+      <a href="pricing.html" class="btn-primary">See Pricing →</a>
+    </div>
+  </section>
+  <!-- ── FOOTER ── -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <span class="logo">FitCoach</span>
+      <div class="footer-links">
+        <a href="contact.html">Contact</a>
+        <a href="login.html">Log In</a>
+      </div>
+      <p>© 2026 FitCoach. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <!-- ── COMING SOON MODAL ── -->
+  <div class="modal-overlay" id="modal-overlay" hidden>
+    <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <button type="button" class="modal-close" id="modal-close" aria-label="Close">✕</button>
+      <span class="modal-icon">🚀</span>
+      <h3 id="modal-title">Coming Soon</h3>
+      <p id="modal-message">This is on its way — check back soon.</p>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

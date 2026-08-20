@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Pricing – FitCoach</title>
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+</head>
+<body>
+  <!-- ── NAVBAR ── -->
+  <nav class="navbar">
+    <div class="nav-inner">
+      <a href="index.html" class="logo">FitCoach</a>
+      <ul class="nav-links" id="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="problem.html">Problem</a></li>
+        <li><a href="solution.html">Solution</a></li>
+        <li><a href="business.html">Business</a></li>
+        <li><a href="pricing.html" class="active">Pricing</a></li>
+        <li><a href="customers.html">Customers</a></li>
+        <li id="nav-auth-guest"><a href="login.html">Log In</a></li>
+        <li id="nav-auth-user" hidden><a href="account.html">My Account</a></li>
+        <li><a href="register.html" class="btn-nav">Sign Up</a></li>
+      </ul>
+      <button class="nav-toggle" id="nav-toggle" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="nav-links">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ── PRICING / REVENUE ── -->
+  <section class="section" id="pricing">
+    <div class="section-inner">
+      <div class="section-label">Revenue Streams</div>
+      <h2>Simple, flexible pricing.</h2>
+      <div class="pricing-row">
+        <div class="price-card" tabindex="0" role="button"
+             data-price-title="Free — $0"
+             data-price-desc="Get moving at no cost with core workout tracking and a taste of personalized plans. Upgrade anytime to unlock full coaching and analytics — this is the entry point of our freemium model.">
+          <h3>Free</h3>
+          <p class="price">$0</p>
+          <p>Core features, no card required.</p>
+          <button type="button" class="plan-choose-btn" data-plan="free">Choose Free</button>
+        </div>
+        <div class="price-card" tabindex="0" role="button"
+             data-price-title="Monthly — $12/mo"
+             data-price-desc="Best if you want to try FitCoach with zero commitment. You get full access to every feature, and you can cancel anytime — no contracts, no penalties. Recommended if you're not sure yet whether the habit will stick.">
+          <h3>Monthly</h3>
+          <p class="price">$12 <span>/mo</span></p>
+          <p>Full access subscription. Cancel anytime.</p>
+          <button type="button" class="plan-choose-btn" data-plan="monthly">Choose Monthly</button>
+        </div>
+        <div class="price-card featured" tabindex="0" role="button"
+             data-price-title="Annual — $99/yr"
+             data-price-desc="Our most recommended plan. It works out to about $8.25/mo, over 30% cheaper than paying monthly, and it's priced around how long real habit change actually takes. Best for anyone ready to commit to a few months of consistent training.">
+          <h3>Annual</h3>
+          <p class="price">$99 <span>/yr</span></p>
+          <p>Best value, save over 30% vs monthly.</p>
+          <button type="button" class="plan-choose-btn" data-plan="annual">Choose Annual</button>
+        </div>
+        <div class="price-card" tabindex="0" role="button"
+             data-price-title="In-App Purchases — Varies"
+             data-price-desc="For members who want more than the core app: 1:1 coaching sessions, specialty programs, or live events. Pay only for the extras you actually want, on top of whichever plan you choose. Recommended if you want occasional expert guidance without a bigger subscription.">
+          <h3>In-App</h3>
+          <p class="price">Varies</p>
+          <p>Premium plans, coaching sessions & events.</p>
+        </div>
+      </div>
+      <p class="pricing-note">We also grow revenue through brand partnerships &amp; sponsorships with gyms, trainers, and fitness brands.</p>
+      <p class="pricing-note">Choosing a plan will create a free account for you if you don't have one yet.</p>
+    </div>
+  </section>
+
+  <!-- ── NEXT PAGE ── -->
+  <section class="section next-link-section">
+    <div class="section-inner center">
+      <a href="customers.html" class="btn-primary">See Who It's For →</a>
+    </div>
+  </section>
+  <!-- ── FOOTER ── -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <span class="logo">FitCoach</span>
+      <div class="footer-links">
+        <a href="contact.html">Contact</a>
+        <a href="login.html">Log In</a>
+      </div>
+      <p>© 2026 FitCoach. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <!-- ── COMING SOON MODAL ── -->
+  <div class="modal-overlay" id="modal-overlay" hidden>
+    <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <button type="button" class="modal-close" id="modal-close" aria-label="Close">✕</button>
+      <span class="modal-icon">🚀</span>
+      <h3 id="modal-title">Coming Soon</h3>
+      <p id="modal-message">This is on its way — check back soon.</p>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

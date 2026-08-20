@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Join the Waitlist – FitCoach</title>
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+</head>
+<body>
+  <!-- ── NAVBAR ── -->
+  <nav class="navbar">
+    <div class="nav-inner">
+      <a href="index.html" class="logo">FitCoach</a>
+      <ul class="nav-links" id="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="problem.html">Problem</a></li>
+        <li><a href="solution.html">Solution</a></li>
+        <li><a href="business.html">Business</a></li>
+        <li><a href="pricing.html">Pricing</a></li>
+        <li><a href="customers.html">Customers</a></li>
+        <li id="nav-auth-guest"><a href="login.html">Log In</a></li>
+        <li id="nav-auth-user" hidden><a href="account.html">My Account</a></li>
+        <li><a href="register.html" class="btn-nav">Sign Up</a></li>
+      </ul>
+      <button class="nav-toggle" id="nav-toggle" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="nav-links">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ── CTA / CONTACT ── -->
+  <section class="section cta-section" id="contact">
+    <div class="section-inner center">
+      <h2>Ready to start your fitness journey?</h2>
+      <p>Join thousands of people already training smarter with FitCoach.</p>
+
+      <form class="waitlist-form" id="waitlist-form" novalidate>
+        <div class="waitlist-field">
+          <input
+            type="email"
+            id="waitlist-email"
+            class="waitlist-input"
+            placeholder="Enter your email"
+            aria-label="Email address"
+            required
+          />
+          <button type="submit" class="btn-primary large">Get Early Access</button>
+        </div>
+        <p class="form-note" id="form-note" role="status" aria-live="polite"></p>
+      </form>
+
+      <div class="waitlist-success" id="waitlist-success" hidden>
+        <span class="success-check">✓</span>
+        <h3>Congratulations! You're on the list!</h3>
+        <p>We'll email you the moment FitCoach is ready for you.</p>
+      </div>
+
+      <p class="auth-switch">Already sure? <a href="register.html">Create an account instead</a></p>
+    </div>
+  </section>
+  <!-- ── FOOTER ── -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <span class="logo">FitCoach</span>
+      <div class="footer-links">
+        <a href="contact.html">Contact</a>
+        <a href="login.html">Log In</a>
+      </div>
+      <p>© 2026 FitCoach. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <!-- ── COMING SOON MODAL ── -->
+  <div class="modal-overlay" id="modal-overlay" hidden>
+    <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <button type="button" class="modal-close" id="modal-close" aria-label="Close">✕</button>
+      <span class="modal-icon">🚀</span>
+      <h3 id="modal-title">Coming Soon</h3>
+      <p id="modal-message">This is on its way — check back soon.</p>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

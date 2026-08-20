@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Our Customers – FitCoach</title>
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+</head>
+<body>
+  <!-- ── NAVBAR ── -->
+  <nav class="navbar">
+    <div class="nav-inner">
+      <a href="index.html" class="logo">FitCoach</a>
+      <ul class="nav-links" id="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="problem.html">Problem</a></li>
+        <li><a href="solution.html">Solution</a></li>
+        <li><a href="business.html">Business</a></li>
+        <li><a href="pricing.html">Pricing</a></li>
+        <li><a href="customers.html" class="active">Customers</a></li>
+        <li id="nav-auth-guest"><a href="login.html">Log In</a></li>
+        <li id="nav-auth-user" hidden><a href="account.html">My Account</a></li>
+        <li><a href="register.html" class="btn-nav">Sign Up</a></li>
+      </ul>
+      <button class="nav-toggle" id="nav-toggle" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="nav-links">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ── CUSTOMER SEGMENTS & EARLY ADOPTERS ── -->
+  <section class="section" id="customers">
+    <div class="section-inner">
+      <div class="section-label">Customer Segments</div>
+      <h2>Built for people who are ready to move.</h2>
+      <div class="adopter-row">
+        <div class="adopter-card">
+          <span>🏢</span>
+          <p>Busy Professionals</p>
+        </div>
+        <div class="adopter-card">
+          <span>🔰</span>
+          <p>Fitness Beginners</p>
+        </div>
+        <div class="adopter-card">
+          <span>🏃</span>
+          <p>Home Workout Enthusiasts</p>
+        </div>
+        <div class="adopter-card">
+          <span>🧭</span>
+          <p>Gym-Goers Looking for Guidance</p>
+        </div>
+      </div>
+
+      <div class="section-label subsection-label">Early Adopters</div>
+      <h2 class="h2-sub">Who's first through the door.</h2>
+      <div class="adopter-row">
+        <div class="adopter-card">
+          <span>🎽</span>
+          <p>Fitness Enthusiasts</p>
+        </div>
+        <div class="adopter-card">
+          <span>🥗</span>
+          <p>Health-Conscious Millennials</p>
+        </div>
+        <div class="adopter-card">
+          <span>🏁</span>
+          <p>People Training for Events</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── KEY METRICS ── -->
+  <section class="section metrics-section alt-bg">
+    <div class="section-inner">
+      <div class="section-label">Key Metrics</div>
+      <h2>How we measure success.</h2>
+      <div class="metrics-row">
+        <div class="metric-block">
+          <span class="metric-num" data-count-to="3" data-count-suffix="K">0</span>
+          <span class="metric-label">Target Early Users</span>
+        </div>
+        <div class="metric-block">
+          <span class="metric-num">Daily</span>
+          <span class="metric-label">Active User Tracking</span>
+        </div>
+        <div class="metric-block">
+          <span class="metric-num">↑</span>
+          <span class="metric-label">Monthly Retention Rate</span>
+        </div>
+        <div class="metric-block">
+          <span class="metric-num">✓</span>
+          <span class="metric-label">Workout Completion Rate</span>
+        </div>
+        <div class="metric-block">
+          <span class="metric-num">%</span>
+          <span class="metric-label">Subscription Conversion Rate</span>
+        </div>
+        <div class="metric-block">
+          <span class="metric-num" data-count-to="12" data-count-prefix="$" data-count-suffix="/mo">$0/mo</span>
+          <span class="metric-label">Average Revenue Per User</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── NEXT PAGE ── -->
+  <section class="section next-link-section">
+    <div class="section-inner center">
+      <a href="register.html" class="btn-primary">Create Your Account →</a>
+    </div>
+  </section>
+  <!-- ── FOOTER ── -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <span class="logo">FitCoach</span>
+      <div class="footer-links">
+        <a href="contact.html">Contact</a>
+        <a href="login.html">Log In</a>
+      </div>
+      <p>© 2026 FitCoach. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <!-- ── COMING SOON MODAL ── -->
+  <div class="modal-overlay" id="modal-overlay" hidden>
+    <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <button type="button" class="modal-close" id="modal-close" aria-label="Close">✕</button>
+      <span class="modal-icon">🚀</span>
+      <h3 id="modal-title">Coming Soon</h3>
+      <p id="modal-message">This is on its way — check back soon.</p>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

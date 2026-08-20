@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Our Solution – FitCoach</title>
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+</head>
+<body>
+  <!-- ── NAVBAR ── -->
+  <nav class="navbar">
+    <div class="nav-inner">
+      <a href="index.html" class="logo">FitCoach</a>
+      <ul class="nav-links" id="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="problem.html">Problem</a></li>
+        <li><a href="solution.html" class="active">Solution</a></li>
+        <li><a href="business.html">Business</a></li>
+        <li><a href="pricing.html">Pricing</a></li>
+        <li><a href="customers.html">Customers</a></li>
+        <li id="nav-auth-guest"><a href="login.html">Log In</a></li>
+        <li id="nav-auth-user" hidden><a href="account.html">My Account</a></li>
+        <li><a href="register.html" class="btn-nav">Sign Up</a></li>
+      </ul>
+      <button class="nav-toggle" id="nav-toggle" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="nav-links">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ── SOLUTION ── -->
+  <section class="section" id="solution">
+    <div class="section-inner">
+      <div class="section-label">Our Solution</div>
+      <h2>Your own personal fitness coach — in an app.</h2>
+      <p class="section-sub">Personalized workout plans built around you, with on-demand coaching, progress analytics, and real results — anytime, anywhere.</p>
+      <div class="solution-grid">
+        <div class="solution-item" tabindex="0" role="button"
+             data-example-title="Progress Analytics — Example"
+             data-example-desc="Sarah's dashboard after 6 weeks: bench press up from 95 to 120 lbs, resting heart rate down from 74 to 66 bpm, and a 22-workout streak. Every session logs sets, reps, and how you felt, so the trends are obvious at a glance.">
+          <span class="sol-icon">📊</span>
+          <h4>Progress Analytics</h4>
+          <p>Track your journey with data that shows real improvement.</p>
+          <span class="sol-example-link">See example →</span>
+        </div>
+        <div class="solution-item" tabindex="0" role="button"
+             data-example-title="Personalized Plans — Example"
+             data-example-desc="Tell FitCoach you have 30 minutes, 3 days a week, and want to build strength without gym equipment. You'll get a rotating plan — Day 1 push, Day 2 pull, Day 3 legs and core — each with video demos and weights that adjust automatically as you improve.">
+          <span class="sol-icon">🎯</span>
+          <h4>Personalized Plans</h4>
+          <p>Workouts built for your goals, schedule, and fitness level.</p>
+          <span class="sol-example-link">See example →</span>
+        </div>
+        <div class="solution-item" tabindex="0" role="button"
+             data-example-title="On-Demand Coaching — Example"
+             data-example-desc="Upload a 10-second video of your squat and a certified coach reviews your form and sends back voice notes within a few hours — no need to book a session or wait for a gym appointment.">
+          <span class="sol-icon">🏃</span>
+          <h4>On-Demand Coaching</h4>
+          <p>Access professional guidance whenever you need it.</p>
+          <span class="sol-example-link">See example →</span>
+        </div>
+        <div class="solution-item" tabindex="0" role="button"
+             data-example-title="Community & Challenges — Example"
+             data-example-desc="Join the 30-Day Push-Up Challenge with 1,240 other members: log your daily reps, see a live leaderboard, and cheer teammates on in the group chat when they hit a new personal best.">
+          <span class="sol-icon">🤝</span>
+          <h4>Community &amp; Challenges</h4>
+          <p>Join challenges, share wins, and stay accountable with people on the same journey.</p>
+          <span class="sol-example-link">See example →</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── FEATURES / CHANNELS ── -->
+  <section class="section alt-bg" id="features">
+    <div class="section-inner">
+      <div class="section-label">Channels</div>
+      <h2>Find us where you already are.</h2>
+      <div class="channels-row">
+        <button type="button" class="channel-pill" data-coming-soon="App Store">📱 App Store</button>
+        <button type="button" class="channel-pill" data-coming-soon="Social Media">▶️ Social Media</button>
+        <button type="button" class="channel-pill" data-coming-soon="Instagram">📸 Instagram</button>
+        <button type="button" class="channel-pill" data-coming-soon="YouTube">🎬 YouTube</button>
+        <button type="button" class="channel-pill" data-coming-soon="Fitness Influencers">💪 Fitness Influencers</button>
+        <button type="button" class="channel-pill" data-coming-soon="Email Marketing">✉️ Email Marketing</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── NEXT PAGE ── -->
+  <section class="section next-link-section">
+    <div class="section-inner center">
+      <a href="business.html" class="btn-primary">See What Makes Us Different →</a>
+    </div>
+  </section>
+  <!-- ── FOOTER ── -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <span class="logo">FitCoach</span>
+      <div class="footer-links">
+        <a href="contact.html">Contact</a>
+        <a href="login.html">Log In</a>
+      </div>
+      <p>© 2026 FitCoach. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <!-- ── COMING SOON MODAL ── -->
+  <div class="modal-overlay" id="modal-overlay" hidden>
+    <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <button type="button" class="modal-close" id="modal-close" aria-label="Close">✕</button>
+      <span class="modal-icon">🚀</span>
+      <h3 id="modal-title">Coming Soon</h3>
+      <p id="modal-message">This is on its way — check back soon.</p>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

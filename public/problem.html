@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>The Problem – FitCoach</title>
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+</head>
+<body>
+  <!-- ── NAVBAR ── -->
+  <nav class="navbar">
+    <div class="nav-inner">
+      <a href="index.html" class="logo">FitCoach</a>
+      <ul class="nav-links" id="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="problem.html" class="active">Problem</a></li>
+        <li><a href="solution.html">Solution</a></li>
+        <li><a href="business.html">Business</a></li>
+        <li><a href="pricing.html">Pricing</a></li>
+        <li><a href="customers.html">Customers</a></li>
+        <li id="nav-auth-guest"><a href="login.html">Log In</a></li>
+        <li id="nav-auth-user" hidden><a href="account.html">My Account</a></li>
+        <li><a href="register.html" class="btn-nav">Sign Up</a></li>
+      </ul>
+      <button class="nav-toggle" id="nav-toggle" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="nav-links">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ── PROBLEM ── -->
+  <section class="section" id="problem">
+    <div class="section-inner two-col">
+      <div class="section-label">The Problem</div>
+      <div>
+        <h2>Most people quit because fitness is <em>hard to navigate alone.</em></h2>
+        <ul class="problem-list">
+          <li>Lack of motivation and accountability</li>
+          <li>Inconsistent workout plans that don't fit your life</li>
+          <li>Hard to find personalized routines that work</li>
+          <li>Generic YouTube videos don't track your progress</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── EXISTING ALTERNATIVES ── -->
+  <section class="section alt-bg" id="alternatives">
+    <div class="section-inner">
+      <div class="section-label">What Exists Today</div>
+      <h2>The competition falls short.</h2>
+      <div class="cards-row">
+        <div class="alt-card">
+          <span class="alt-icon">📺</span>
+          <h3>YouTube Workouts</h3>
+          <p>Free but zero personalization or tracking.</p>
+        </div>
+        <div class="alt-card">
+          <span class="alt-icon">🏋️</span>
+          <h3>Gym Memberships</h3>
+          <p>Expensive and not always accessible.</p>
+        </div>
+        <div class="alt-card">
+          <span class="alt-icon">📋</span>
+          <h3>Generic Plans</h3>
+          <p>One-size-fits-all doesn't get results.</p>
+        </div>
+        <div class="alt-card">
+          <span class="alt-icon">📱</span>
+          <h3>Fitness Influencers</h3>
+          <p>Motivating but not tailored to you.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── NEXT PAGE ── -->
+  <section class="section next-link-section">
+    <div class="section-inner center">
+      <a href="solution.html" class="btn-primary">See Our Solution →</a>
+    </div>
+  </section>
+  <!-- ── FOOTER ── -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <span class="logo">FitCoach</span>
+      <div class="footer-links">
+        <a href="contact.html">Contact</a>
+        <a href="login.html">Log In</a>
+      </div>
+      <p>© 2026 FitCoach. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <!-- ── COMING SOON MODAL ── -->
+  <div class="modal-overlay" id="modal-overlay" hidden>
+    <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <button type="button" class="modal-close" id="modal-close" aria-label="Close">✕</button>
+      <span class="modal-icon">🚀</span>
+      <h3 id="modal-title">Coming Soon</h3>
+      <p id="modal-message">This is on its way — check back soon.</p>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

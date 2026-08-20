@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>FitCoach – Your Personal Fitness App</title>
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+</head>
+<body>
+  <!-- ── NAVBAR ── -->
+  <nav class="navbar">
+    <div class="nav-inner">
+      <a href="index.html" class="logo">FitCoach</a>
+      <ul class="nav-links" id="nav-links">
+        <li><a href="index.html" class="active">Home</a></li>
+        <li><a href="problem.html">Problem</a></li>
+        <li><a href="solution.html">Solution</a></li>
+        <li><a href="business.html">Business</a></li>
+        <li><a href="pricing.html">Pricing</a></li>
+        <li><a href="customers.html">Customers</a></li>
+        <li id="nav-auth-guest"><a href="login.html">Log In</a></li>
+        <li id="nav-auth-user" hidden><a href="account.html">My Account</a></li>
+        <li><a href="register.html" class="btn-nav">Sign Up</a></li>
+      </ul>
+      <button class="nav-toggle" id="nav-toggle" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="nav-links">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ── HERO ── -->
+  <section class="hero">
+    <div class="hero-text">
+      <p class="eyebrow">Your personal trainer. In your pocket.</p>
+      <h1>Train Smarter.<br/><span class="accent">Get Real Results.</span></h1>
+      <p class="hero-sub">Personalized workout plans, on-demand coaching, and analytics that actually help you grow — anytime, anywhere.</p>
+      <div class="hero-cta">
+        <a href="register.html" class="btn-primary">Create Your Account</a>
+        <a href="pricing.html" class="btn-ghost">See Pricing</a>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="phone-mockup">
+        <div class="phone-screen">
+          <div class="stat-card">
+            <span class="stat-label">Daily Active Users</span>
+            <span class="stat-number" data-count-to="3" data-count-suffix="K+">0</span>
+          </div>
+          <div class="stat-card secondary">
+            <span class="stat-label">Avg. Revenue / User</span>
+            <span class="stat-number" data-count-to="12" data-count-prefix="$" data-count-suffix="/mo">$0/mo</span>
+          </div>
+          <div class="pulse-ring"></div>
+          <p class="phone-tag">💪 Ready to begin your journey?</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── HIGH LEVEL CONCEPT ── -->
+  <section class="concept-banner">
+    <div class="section-inner center">
+      <p class="concept-label">High Level Concept</p>
+      <p class="concept-line">Fitness app = <span class="accent">Netflix</span> for workouts.</p>
+    </div>
+  </section>
+
+  <!-- ── PAGE MAP ── -->
+  <section class="section">
+    <div class="section-inner">
+      <div class="section-label">Find Your Way Around</div>
+      <h2>Everything about FitCoach, one page at a time.</h2>
+      <div class="cards-row">
+        <a class="alt-card page-link" href="problem.html">
+          <span class="alt-icon">⚠️</span>
+          <h3>The Problem</h3>
+          <p>Why most people quit training alone.</p>
+        </a>
+        <a class="alt-card page-link" href="solution.html">
+          <span class="alt-icon">💡</span>
+          <h3>Our Solution</h3>
+          <p>How FitCoach fixes it — and where you'll find us.</p>
+        </a>
+        <a class="alt-card page-link" href="business.html">
+          <span class="alt-icon">⭐</span>
+          <h3>Our Business</h3>
+          <p>What makes us different, and what it costs to build.</p>
+        </a>
+        <a class="alt-card page-link" href="pricing.html">
+          <span class="alt-icon">💳</span>
+          <h3>Pricing</h3>
+          <p>Simple plans and how we make money.</p>
+        </a>
+        <a class="alt-card page-link" href="customers.html">
+          <span class="alt-icon">👥</span>
+          <h3>Our Customers</h3>
+          <p>Who we're built for, and who's coming first.</p>
+        </a>
+        <a class="alt-card page-link" href="register.html">
+          <span class="alt-icon">🚀</span>
+          <h3>Create Account</h3>
+          <p>Sign up and subscribe to a plan.</p>
+        </a>
+        <a class="alt-card page-link" href="contact.html">
+          <span class="alt-icon">✉️</span>
+          <h3>Join the Waitlist</h3>
+          <p>Not ready yet? Get notified at launch.</p>
+        </a>
+      </div>
+    </div>
+  </section>
+  <!-- ── FOOTER ── -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <span class="logo">FitCoach</span>
+      <div class="footer-links">
+        <a href="contact.html">Contact</a>
+        <a href="login.html">Log In</a>
+      </div>
+      <p>© 2026 FitCoach. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <!-- ── COMING SOON MODAL ── -->
+  <div class="modal-overlay" id="modal-overlay" hidden>
+    <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <button type="button" class="modal-close" id="modal-close" aria-label="Close">✕</button>
+      <span class="modal-icon">🚀</span>
+      <h3 id="modal-title">Coming Soon</h3>
+      <p id="modal-message">This is on its way — check back soon.</p>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
