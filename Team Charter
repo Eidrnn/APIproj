@@ -1,0 +1,98 @@
+Team name- APIproj
+Kemal Omolo- DevOps lead
+Rowan Oduor- Backend lead
+Alvin Mburu- API lead
+Adrian Nyandega-Integration lead
+
+
+
+
+
+What the app stores
+Gym membership
+Fitness instructions
+Equipment
+Member subscription
+Pricing 
+Fitness plans 
+Exercise
+Workout log 
+Progress metric
+Notifications
+Actions
+User / Auth
+•	Register (create account)
+•	Log in / log out
+•	View own profile
+•	Edit profile (name, email, password, goals, fitness level, equipment, schedule)
+•	Delete account
+•	(Admin) search/filter users by plan, signup date, activity
+WorkoutPlan
+•	View current plan
+•	Generate/create a new plan (based on profile inputs)
+•	Edit/regenerate plan (change goal, adjust difficulty)
+•	Deactivate/archive an old plan
+•	View plan history (past plans)
+Exercise
+•	View/browse exercise library
+•	Search exercises (by name)
+•	Filter exercises (by muscle group, equipment needed, difficulty)
+•	(Admin/coach) create, edit, delete exercise entries
+PlanExercise
+•	View exercises within a specific plan/day
+•	Reorder exercises in a plan
+•	Edit target sets/reps/weight for an exercise in a plan
+•	Remove an exercise from a plan
+WorkoutLog
+•	Log a completed workout (create)
+•	Mark a workout/session as complete
+•	Edit a past log entry (correct a mistake)
+•	Delete a log entry
+•	View workout history
+•	Filter logs by date range or exercise
+ProgressMetric
+•	Add a new metric entry (weight, body fat %, resting heart rate, etc.)
+•	Edit an entry
+•	Delete an entry
+•	View trend over time (filter by date range, metric type)
+CoachingMessage
+•	Send a message/question (optionally with video/photo attachment)
+•	View message thread
+•	(Coach) reply to a message
+•	Mark a message as read
+•	(Coach) filter/search messages by client or status (answered/unanswered)
+Coach
+•	(Admin) create/promote a coach
+•	(Admin) deactivate a coach
+•	View list of assigned clients
+•	View a specific client's history (with permission)
+Challenge
+•	View active/upcoming challenges
+•	Join a challenge
+•	Leave a challenge
+•	Log progress toward a challenge
+•	View leaderboard
+•	(Admin) create, edit, end a challenge
+SubscriptionPlan
+•	View available plans
+•	Compare plans (implicitly a view/filter)
+•	(Admin) create/edit/retire a plan tier
+Payment
+•	Subscribe (create a payment + update user plan)
+•	Cancel subscription
+•	View billing history
+•	(Admin) filter payments by status, date, user
+•	(Admin) issue a refund
+Partner
+•	(Admin) create a partner account + issue API key
+•	(Admin) revoke/regenerate API key
+•	(Partner) verify a member's subscription status
+•	(Admin) view partner usage/activity
+Notification
+•	View notifications
+•	Mark as read
+•	Mark all as read
+•	Delete a notification
+•	(System) create a notification (triggered by other actions, not user-initiated
+C:\Users\odwor\Downloads\fitcoach-server
+"C:\Users\odwor\OneDrive\Desktop\fitcoach-server"
