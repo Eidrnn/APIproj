@@ -5,8 +5,8 @@ Alvin Mburu- API lead
 Adrian Nyandega-Integration lead
 
 
-
-
+A small Node/Express backend for the FitCoach marketing site, with real account registration, login, and subscription plan management backed by a SQLite database.
+Ring position -7
 
 What the app stores
 Gym membership
