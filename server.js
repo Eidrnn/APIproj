@@ -77,6 +77,12 @@ if (getAllCategories.all().length === 0) {
   insertCategory.run('Equipment', 'One-off purchases of fitness gear or equipment');
   insertCategory.run('Nutrition', 'Supplements, meal plans, and fitness-related nutrition costs');
 }
+// Seed one demo user on a fresh database so the README works from a clean clone.
+if (getAllUsers.all().length === 0) {
+  db.prepare(
+    'INSERT INTO users (name, email, password_hash, plan, subscribed_at, monthly_allowance_kes) VALUES (?, ?, ?, ?, ?, ?)'
+  ).run('Wanjiru Kamau', 'wanjiru.kamau@example.com', bcrypt.hashSync('demo1234', 10), 'free', new Date().toISOString(), 8000);
+}
 const getExpensesForUserMonth = db.prepare(
   `SELECT amount FROM expenses WHERE user_id = ? AND substr(expense_date, 1, 7) = ?`
 );
