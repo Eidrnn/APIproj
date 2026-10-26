@@ -1,11 +1,26 @@
-openapi: 3.0.0
+openapi: 3.0.3
 info:
   title: FitCoach Expenditure Tracker API
-  version: 1.0.0
+  version: 1.1.0
   description: >
     API for tracking fitness-related expenses against a user's monthly
     allowance. Covers user profiles, expense categories, and full CRUD
     on individual expense records.
+
+
+    **Authentication:** every request must include your API key in the
+    `X-API-Key` header. Requests without a valid key get `401`.
+
+
+    **IDs** are strings with a prefix: users `usr_<number>`, categories
+    `cat_<number>`, expenses `exp_<number>`.
+
+servers:
+  - url: http://localhost:8080
+    description: Local development server
+
+security:
+  - ApiKeyAuth: []
 
 paths:
   # ============================================================
@@ -22,24 +37,32 @@ paths:
               schema:
                 type: array
                 items:
-                  type: object
-                  required: [userId, name, email]
-                  properties:
-                    userId:
-                      type: string
-                      example: "usr_1042"
-                    name:
-                      type: string
-                      example: "Wanjiru Kamau"
-                    email:
-                      type: string
-                      format: email
-                      example: "wanjiru.kamau@example.com"
-                    monthlyAllowance:
-                      type: number
-                      format: float
-                      description: Monthly fitness spending allowance, in KES
-                      example: 8000
+                  $ref: '#/components/schemas/User'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /users/{userId}:
+    get:
+      summary: Return a single user profile
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      responses:
+        '200':
+          description: The requested user profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          description: No user found with the given userId
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: "No user found with id usr_99"
 
   # ============================================================
   # CATEGORIES
@@ -55,18 +78,9 @@ paths:
               schema:
                 type: array
                 items:
-                  type: object
-                  required: [categoryId, name]
-                  properties:
-                    categoryId:
-                      type: string
-                      example: "cat_gym"
-                    name:
-                      type: string
-                      example: "Gym Membership"
-                    description:
-                      type: string
-                      example: "Recurring monthly gym or fitness club membership fees"
+                  $ref: '#/components/schemas/Category'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
 
   # ============================================================
   # EXPENSES — create
@@ -79,67 +93,26 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              required: [userId, categoryId, amount, date]
-              properties:
-                userId:
-                  type: string
-                  example: "usr_1042"
-                categoryId:
-                  type: string
-                  example: "cat_gym"
-                amount:
-                  type: number
-                  format: float
-                  description: Expense amount, in KES
-                  example: 1500
-                date:
-                  type: string
-                  format: date-time
-                  example: "2026-09-07T10:00:00Z"
-                description:
-                  type: string
-                  example: "September gym membership renewal"
+              $ref: '#/components/schemas/ExpenseInput'
       responses:
         '201':
           description: Expense record created
           content:
             application/json:
               schema:
-                type: object
-                required: [expenseId, userId, categoryId, amount, date]
-                properties:
-                  expenseId:
-                    type: string
-                    example: "exp_5231"
-                  userId:
-                    type: string
-                    example: "usr_1042"
-                  categoryId:
-                    type: string
-                    example: "cat_gym"
-                  amount:
-                    type: number
-                    format: float
-                    example: 1500
-                  date:
-                    type: string
-                    format: date-time
-                    example: "2026-09-07T10:00:00Z"
-                  description:
-                    type: string
-                    example: "September gym membership renewal"
+                $ref: '#/components/schemas/Expense'
         '400':
-          description: Invalid or missing fields in the request body
+          description: >
+            Invalid or missing fields in the request body, or the userId or
+            categoryId does not exist
           content:
             application/json:
               schema:
-                type: object
-                required: [error]
-                properties:
-                  error:
-                    type: string
-                    example: "amount is required and must be a positive number"
+                $ref: '#/components/schemas/Error'
+              example:
+                error: "amount is required and must be a positive number"
+        '401':
+          $ref: '#/components/responses/Unauthorized'
 
   # ============================================================
   # EXPENSES — update / delete a single record
@@ -147,101 +120,49 @@ paths:
   /expenses/{expenseId}:
     put:
       summary: Update an existing fitness expense record
+      description: >
+        Partial update: send only the fields you want to change. At least one
+        field is required. The expense's userId cannot be changed.
       parameters:
-        - name: expenseId
-          in: path
-          required: true
-          schema:
-            type: string
-          example: "exp_5231"
+        - $ref: '#/components/parameters/ExpenseId'
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              type: object
-              description: >
-                Fields to update. All fields are optional; only the fields
-                supplied are changed on the existing record.
-              properties:
-                categoryId:
-                  type: string
-                  example: "cat_equipment"
-                amount:
-                  type: number
-                  format: float
-                  example: 2200
-                date:
-                  type: string
-                  format: date-time
-                  example: "2026-09-07T10:00:00Z"
-                description:
-                  type: string
-                  example: "Corrected amount for resistance bands purchase"
+              $ref: '#/components/schemas/ExpenseUpdate'
       responses:
         '200':
-          description: Expense record updated
+          description: Expense record updated; the full updated record is returned
           content:
             application/json:
               schema:
-                type: object
-                required: [expenseId, userId, categoryId, amount, date]
-                properties:
-                  expenseId:
-                    type: string
-                    example: "exp_5231"
-                  userId:
-                    type: string
-                    example: "usr_1042"
-                  categoryId:
-                    type: string
-                    example: "cat_equipment"
-                  amount:
-                    type: number
-                    format: float
-                    example: 2200
-                  date:
-                    type: string
-                    format: date-time
-                    example: "2026-09-07T10:00:00Z"
-                  description:
-                    type: string
-                    example: "Corrected amount for resistance bands purchase"
+                $ref: '#/components/schemas/Expense'
+        '400':
+          description: >
+            Empty body, invalid field values, or a categoryId that does not exist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: "provide at least one field to update"
+        '401':
+          $ref: '#/components/responses/Unauthorized'
         '404':
-          description: No expense record found with the given expenseId
-          content:
-            application/json:
-              schema:
-                type: object
-                required: [error]
-                properties:
-                  error:
-                    type: string
-                    example: "No expense found with id exp_5231"
+          $ref: '#/components/responses/ExpenseNotFound'
 
     delete:
       summary: Remove a fitness expense record
       parameters:
-        - name: expenseId
-          in: path
-          required: true
-          schema:
-            type: string
-          example: "exp_5231"
+        - $ref: '#/components/parameters/ExpenseId'
       responses:
         '204':
           description: Expense record deleted successfully (no content returned)
+        '401':
+          $ref: '#/components/responses/Unauthorized'
         '404':
-          description: No expense record found with the given expenseId
-          content:
-            application/json:
-              schema:
-                type: object
-                required: [error]
-                properties:
-                  error:
-                    type: string
-                    example: "No expense found with id exp_5231"
+          $ref: '#/components/responses/ExpenseNotFound'
 
   # ============================================================
   # EXPENSES — spending summary
@@ -250,12 +171,7 @@ paths:
     get:
       summary: Return a user's total fitness spending against their monthly allowance
       parameters:
-        - name: userId
-          in: path
-          required: true
-          schema:
-            type: string
-          example: "usr_1042"
+        - $ref: '#/components/parameters/UserId'
         - name: month
           in: query
           required: false
@@ -264,42 +180,212 @@ paths:
             the current calendar month.
           schema:
             type: string
-            example: "2026-09"
+            pattern: '^\d{4}-(0[1-9]|1[0-2])$'
+            example: "2026-10"
       responses:
         '200':
           description: Spending summary for the requested month
           content:
             application/json:
               schema:
-                type: object
-                required: [userId, month, totalSpent, monthlyAllowance, remaining]
-                properties:
-                  userId:
-                    type: string
-                    example: "usr_1042"
-                  month:
-                    type: string
-                    example: "2026-09"
-                  totalSpent:
-                    type: number
-                    format: float
-                    example: 3700
-                  monthlyAllowance:
-                    type: number
-                    format: float
-                    example: 8000
-                  remaining:
-                    type: number
-                    format: float
-                    example: 4300
+                $ref: '#/components/schemas/Summary'
+        '400':
+          description: The month parameter is not formatted as YYYY-MM
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: "month must be formatted as YYYY-MM"
+        '401':
+          $ref: '#/components/responses/Unauthorized'
         '404':
           description: No user found with the given userId
           content:
             application/json:
               schema:
-                type: object
-                required: [error]
-                properties:
-                  error:
-                    type: string
-                    example: "No user found with id usr_1042"
+                $ref: '#/components/schemas/Error'
+              example:
+                error: "No user found with id usr_99"
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+
+  parameters:
+    UserId:
+      name: userId
+      in: path
+      required: true
+      description: User ID in the form usr_<number>
+      schema:
+        type: string
+        pattern: '^usr_\d+$'
+        example: "usr_1"
+    ExpenseId:
+      name: expenseId
+      in: path
+      required: true
+      description: Expense ID in the form exp_<number>
+      schema:
+        type: string
+        pattern: '^exp_\d+$'
+        example: "exp_4"
+
+  responses:
+    Unauthorized:
+      description: Missing or invalid API key
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: "Missing or invalid API key"
+    ExpenseNotFound:
+      description: No expense record found with the given expenseId
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: "No expense found with id exp_99999"
+
+  schemas:
+    Error:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: string
+
+    User:
+      type: object
+      required: [userId, name, email, monthlyAllowance]
+      properties:
+        userId:
+          type: string
+          example: "usr_1"
+        name:
+          type: string
+          example: "Wanjiru Kamau"
+        email:
+          type: string
+          format: email
+          example: "wanjiru.kamau@example.com"
+        monthlyAllowance:
+          type: number
+          description: Monthly fitness spending allowance, in KES
+          example: 8000
+
+    Category:
+      type: object
+      required: [categoryId, name]
+      properties:
+        categoryId:
+          type: string
+          example: "cat_1"
+        name:
+          type: string
+          example: "Gym Membership"
+        description:
+          type: string
+          nullable: true
+          example: "Recurring monthly gym or fitness club membership fees"
+
+    ExpenseInput:
+      type: object
+      required: [userId, categoryId, amount, date]
+      properties:
+        userId:
+          type: string
+          pattern: '^usr_\d+$'
+          example: "usr_1"
+        categoryId:
+          type: string
+          pattern: '^cat_\d+$'
+          example: "cat_1"
+        amount:
+          type: number
+          description: Expense amount in KES. Must be greater than 0.
+          exclusiveMinimum: true
+          minimum: 0
+          example: 1500
+        date:
+          type: string
+          format: date-time
+          example: "2026-10-12T10:00:00Z"
+        description:
+          type: string
+          maxLength: 255
+          example: "October gym membership renewal"
+
+    ExpenseUpdate:
+      type: object
+      minProperties: 1
+      description: Any of these fields; only the fields supplied are changed.
+      properties:
+        categoryId:
+          type: string
+          pattern: '^cat_\d+$'
+          example: "cat_2"
+        amount:
+          type: number
+          exclusiveMinimum: true
+          minimum: 0
+          example: 2200
+        date:
+          type: string
+          format: date-time
+          example: "2026-10-12T10:00:00Z"
+        description:
+          type: string
+          maxLength: 255
+          example: "Corrected amount for resistance bands purchase"
+
+    Expense:
+      type: object
+      required: [expenseId, userId, categoryId, amount, date]
+      properties:
+        expenseId:
+          type: string
+          example: "exp_4"
+        userId:
+          type: string
+          example: "usr_1"
+        categoryId:
+          type: string
+          example: "cat_1"
+        amount:
+          type: number
+          example: 1500
+        date:
+          type: string
+          format: date-time
+          example: "2026-10-12T10:00:00Z"
+        description:
+          type: string
+          example: "October gym membership renewal"
+
+    Summary:
+      type: object
+      required: [userId, month, totalSpent, monthlyAllowance, remaining]
+      properties:
+        userId:
+          type: string
+          example: "usr_1"
+        month:
+          type: string
+          example: "2026-10"
+        totalSpent:
+          type: number
+          example: 3700
+        monthlyAllowance:
+          type: number
+          example: 8000
+        remaining:
+          type: number
+          description: monthlyAllowance minus totalSpent (can be negative)
+          example: 4300
