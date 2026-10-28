@@ -37,7 +37,7 @@ submitting: only fill them in with what actually happened.
 | 11 | `/events` `start_time` is a day earlier than their own `/api/events` date for all three events (for example Football: `2026-08-19T00:00:00Z` vs "20 August 2026") | **TO CONFIRM** with partner. Looks like a time-zone shift when dates are converted | We display `start_time` as given and flagged it. **TO CONFIRM** | Theirs, to be confirmed |
 | 12 | The `title` of one event has a trailing space (`"Football "`), and all three events are dated before today while the contract describes upcoming events | Data quality in their database | We trim titles in our `/partner-data` route. Told partner: **TO CONFIRM** | Theirs for the data, ours for the trim |
 | 13 | Their README and their contract list different paths: `/fitcoachusers/{id}/profile` vs `/fitcoach-users/{id}/profile`; `/fitcoachusers/{id}/fitcoachbindings` vs `/fitcoach-users/{id}/fitcoach-bindings`; `/marketplace` vs `/marketplace/listings?status=active` | README and contract were written separately | **TO CONFIRM**: test each path with curl, record which one works, and report the other | Theirs, to be fixed by them |
-| 14 | Their contract and README define no authentication and say to follow the contract, but they issued us an API key | Documentation is out of date, or the key is optional | **TO CONFIRM**: run `curl.exe -i https://<their-url>/events` with no key and record `200` or `401`, then ask them to document the header name | Theirs, to be fixed by them |
+
 
 ### Our feature
 
