@@ -5,27 +5,77 @@ const cors = require('cors');
 const mysql = require('mysql2/promise');
 
 const app = express();
+app.disable('x-powered-by'); // don't advertise the framework
 app.use(cors()); // CORS must come BEFORE the key check so browser preflights work
 app.use(express.json());
 
 // ---------- API key check (protects everything below) ----------
-// API_KEYS in .env: one key, or several separated by commas (one per partner)
-const validKeys = (process.env.API_KEYS || '')
+// API_KEYS in .env: one key per consumer, separated by commas. Optionally name each
+// key as name:key (keys are hex, so ":" is safe), e.g. partner:abc123,team:def456.
+// Unnamed keys are called consumer1, consumer2, ...
+const consumers = (process.env.API_KEYS || '')
   .split(',')
-  .map((k) => k.trim())
-  .filter(Boolean);
+  .map((entry) => entry.trim())
+  .filter(Boolean)
+  .map((entry, i) => {
+    const idx = entry.indexOf(':');
+    return idx === -1
+      ? { name: `consumer${i + 1}`, key: entry }
+      : { name: entry.slice(0, idx), key: entry.slice(idx + 1) };
+  });
+
+function safeEqual(a, b) {
+  const x = Buffer.from(a);
+  const y = Buffer.from(b);
+  return x.length === y.length && crypto.timingSafeEqual(x, y);
+}
 
 function requireApiKey(req, res, next) {
-  const key = req.get('X-API-Key');
-  const ok =
-    key &&
-    validKeys.some(
-      (k) => k.length === key.length && crypto.timingSafeEqual(Buffer.from(k), Buffer.from(key))
-    );
-  if (!ok) return res.status(401).json({ error: 'Missing or invalid API key' });
+  // /partner-data is public on purpose (see SECURITY_AUDIT.md): it returns only public
+  // campus-event data, and the demo page can't hold a key without leaking it.
+  if (req.path === '/partner-data') return next();
+
+  const sent = req.get('X-API-Key');
+  const match = sent && consumers.find((c) => safeEqual(c.key, sent));
+  if (!match) return res.status(401).json({ error: 'Missing or invalid API key' });
+
+  req.consumer = match.name; // who is calling (never the key itself)
   next();
 }
+
+// In-memory limiter: counts requests per consumer (per IP for public routes) per window
+function rateLimit({ windowMs, max }) {
+  const hits = new Map(); // id -> { count, resetAt }
+  setInterval(() => {
+    const now = Date.now();
+    for (const [id, entry] of hits) if (now >= entry.resetAt) hits.delete(id);
+  }, windowMs).unref();
+
+  return (req, res, next) => {
+    const id = req.consumer || req.ip;
+    const now = Date.now();
+    let entry = hits.get(id);
+    if (!entry || now >= entry.resetAt) {
+      entry = { count: 0, resetAt: now + windowMs };
+      hits.set(id, entry);
+    }
+    entry.count += 1;
+    if (entry.count > max) {
+      const retryAfter = Math.ceil((entry.resetAt - now) / 1000);
+      res.set('Retry-After', String(retryAfter));
+      return res.status(429).json({ error: 'Too many requests', retryAfter });
+    }
+    next();
+  };
+}
+
+// 100 requests per minute per consumer. Set RATE_LIMIT_MAX in .env to change it
+// (for example 3, to demonstrate a 429), then restart the server.
+const RATE_LIMIT_MAX = Number(process.env.RATE_LIMIT_MAX) || 100;
+
+app.use(express.static('web')); // demo page, served without a key
 app.use(requireApiKey);
+app.use(rateLimit({ windowMs: 60000, max: RATE_LIMIT_MAX }));
 
 const pool = mysql.createPool({
   host: process.env.DB_HOST,
@@ -286,31 +336,47 @@ app.delete('/expenses/:expenseId', async (req, res) => {
 });
 
 // ---------- Week 10: call the upstream partner's API (server-side only) ----------
-// PARTNER_URL and PARTNER_API_KEY live in .env. Change PARTNER_PATH and the header
-// name to match THEIR README/contract.
+// CampusCore (our upstream partner) is documented in their README and contract.
+// PARTNER_URL lives in .env. Their contract defines no auth, so a key is optional.
 const PARTNER_URL = process.env.PARTNER_URL;
 const PARTNER_KEY = process.env.PARTNER_API_KEY;
-const PARTNER_PATH = '/REPLACE_WITH_PARTNER_PATH';
-const PARTNER_HEADER = 'X-API-Key';
+const PARTNER_PATH = '/events';
 
 app.get('/partner-data', async (req, res) => {
   try {
-    const r = await fetch(`${PARTNER_URL}${PARTNER_PATH}`, {
-      headers: { [PARTNER_HEADER]: PARTNER_KEY },
-    });
+    const headers = {};
+    if (PARTNER_KEY) headers['X-API-Key'] = PARTNER_KEY;
+
+    const r = await fetch(`${PARTNER_URL}${PARTNER_PATH}`, { headers });
     if (!r.ok) {
-      console.error('partner returned', r.status); // log the status, never the key
+      console.error('partner returned', r.status); // log the status, never a key
       return res.status(502).json({ message: 'Partner data unavailable' });
     }
+
     const data = await r.json();
-    console.log(data); // TEMPORARY: look at the real shape, then delete this line
-    // Later: map to only the fields your page needs, using THEIR contract's names
-    res.json(data);
+
+    // Shape check: their contract says { events: [...] }
+    if (!data || !Array.isArray(data.events)) {
+      console.error('partner response has no events array');
+      return res.status(502).json({ message: 'Partner data unavailable' });
+    }
+
+    // Use THEIR field names (snake_case); return only what our page needs
+    res.json(
+      data.events.map((e) => ({
+        title: typeof e.title === 'string' ? e.title.trim() : '',
+        location: e.location,
+        startTime: e.start_time,
+      }))
+    );
   } catch (err) {
     console.error('partner call failed:', err.cause?.code || err.message);
     res.status(502).json({ message: 'Partner data unavailable' });
   }
 });
+
+// Unknown routes get a JSON 404
+app.use((req, res) => res.status(404).json({ error: 'Not found' }));
 
 // Malformed JSON bodies get a JSON 400 instead of an HTML error page
 app.use((err, req, res, next) => {
@@ -320,11 +386,23 @@ app.use((err, req, res, next) => {
   next(err);
 });
 
+// Last resort: never send a stack trace, file path, or query to the caller
+app.use((err, req, res, next) => {
+  console.error(err);
+  const status = err.status >= 400 && err.status < 500 ? err.status : 500;
+  res.status(status).json({
+    error: status === 500 ? 'Internal server error' : 'Request could not be processed',
+  });
+});
+
 app.locals.pool = pool;
 
 const port = process.env.PORT || 8080;
 if (require.main === module) {
-  app.listen(port, () => console.log(`Server running on http://localhost:${port}`));
+  app.listen(port, () => {
+    console.log(`Server running on http://localhost:${port}`);
+    console.log(`${consumers.length} API key(s) loaded, rate limit ${RATE_LIMIT_MAX}/min`); // count only, never the keys
+  });
 }
 
 module.exports = app;

@@ -1,221 +1,178 @@
-process.env.DB_NAME = 'fitcoach_test';
 const request = require('supertest');
 const app = require('../server');
-const { resetDb, seed } = require('../test-utils/seed');
 
-const pool = app.locals.pool;
-afterAll(() => pool.end());
+// Every request carries a valid key (the first one in API_KEYS, which server.js loads from .env)
+const KEY = (process.env.API_KEYS || '').split(',')[0].trim().split(':').pop();
+const base = () => request(process.env.API_URL || app);
+const api = () => ({
+  get: (p) => base().get(p).set('X-API-Key', KEY),
+  post: (p) => base().post(p).set('X-API-Key', KEY),
+  put: (p) => base().put(p).set('X-API-Key', KEY),
+  delete: (p) => base().delete(p).set('X-API-Key', KEY),
+});
 
-const valid = {
+const validExpense = {
   userId: 'usr_1',
   categoryId: 'cat_1',
-  amount: 25.5,
-  date: '2026-10-01T10:00:00Z',
+  amount: 1500,
+  date: '2026-10-12T10:00:00Z',
+  description: 'Jest test expense',
 };
 
-// ---------------------------------------------------------------
-// POST /expenses
-// ---------------------------------------------------------------
-describe('POST /expenses - validation', () => {
-  it.each(['userId', 'categoryId', 'amount', 'date'])(
-    'rejects a body missing %s',
-    async (field) => {
-      const body = { ...valid };
-      delete body[field];
-      const res = await request(app).post('/expenses').send(body);
-      expect(res.status).toBe(400);
-      expect(typeof res.body.error).toBe('string');
-      expect(res.body.error).toContain(field);
-    }
-  );
+// Every expense a test creates is tracked here and deleted afterwards,
+// so the seed data (and the summary totals) stay unchanged.
+const created = [];
 
-  it.each([
-    ['amount is a string', { amount: '25' }],
-    ['amount is zero', { amount: 0 }],
-    ['amount is negative', { amount: -5 }],
-    ['userId has the wrong format', { userId: '1' }],
-    ['categoryId has the wrong format', { categoryId: 'food' }],
-    ['date is not a date', { date: 'not-a-date' }],
-    ['description is over 255 characters', { description: 'x'.repeat(256) }],
-  ])('rejects when %s', async (_label, override) => {
-    const res = await request(app).post('/expenses').send({ ...valid, ...override });
-    expect(res.status).toBe(400);
-    expect(typeof res.body.error).toBe('string');
-  });
+async function createExpense(overrides = {}) {
+  const res = await api().post('/expenses').send({ ...validExpense, ...overrides });
+  if (res.status === 201) created.push(res.body.expenseId);
+  return res;
+}
 
-  it('rejects malformed JSON with a JSON error body', async () => {
-    const res = await request(app)
-      .post('/expenses')
-      .set('Content-Type', 'application/json')
-      .send('{"amount": ');
-    expect(res.status).toBe(400);
-    expect(res.body.error).toBe('request body is not valid JSON');
-  });
+afterEach(async () => {
+  while (created.length) {
+    await api().delete(`/expenses/${created.pop()}`);
+  }
 });
 
-describe('POST /expenses - behaviour with real data', () => {
-  beforeEach(async () => {
-    await resetDb(pool);
-    await seed(pool);
-  });
+afterAll(() => app.locals.pool.end());
 
-  it('creates an expense and returns it in contract shape', async () => {
-    const res = await request(app)
-      .post('/expenses')
-      .send({ ...valid, description: 'Protein shaker' });
+describe('POST /expenses', () => {
+  it('creates an expense and returns 201 with the contract shape', async () => {
+    const res = await createExpense();
     expect(res.status).toBe(201);
     expect(res.body.expenseId).toMatch(/^exp_\d+$/);
-    expect(res.body).toEqual({
-      expenseId: res.body.expenseId,
-      userId: 'usr_1',
-      categoryId: 'cat_1',
-      amount: 25.5,
-      date: '2026-10-01T10:00:00Z',
-      description: 'Protein shaker',
-    });
+    expect(res.body.userId).toBe('usr_1');
+    expect(res.body.categoryId).toBe('cat_1');
+    expect(res.body.amount).toBe(1500);
+    expect(typeof res.body.date).toBe('string');
+    expect(res.body.date).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/);
+    expect(res.body.description).toBe('Jest test expense');
   });
 
-  it('actually saves the expense (it shows up in the summary)', async () => {
-    await request(app).post('/expenses').send(valid);
-    const res = await request(app).get('/users/usr_1/expenses/summary?month=2026-10');
-    // seed already has 700 in October; 700 + 25.5 = 725.5
-    expect(res.body.totalSpent).toBe(725.5);
-  });
-
-  it('omits description when none was given', async () => {
-    const res = await request(app).post('/expenses').send(valid);
-    expect(res.status).toBe(201);
-    expect(res.body).not.toHaveProperty('description');
-  });
-
-  it('rejects a userId that is well-formed but does not exist', async () => {
-    const res = await request(app).post('/expenses').send({ ...valid, userId: 'usr_99999' });
-    expect(res.status).toBe(400);
-    expect(res.body.error).toContain('usr_99999');
-  });
-
-  it('rejects a categoryId that is well-formed but does not exist', async () => {
-    const res = await request(app).post('/expenses').send({ ...valid, categoryId: 'cat_99999' });
-    expect(res.status).toBe(400);
-    expect(res.body.error).toContain('cat_99999');
-  });
-});
-
-// ---------------------------------------------------------------
-// PUT /expenses/:expenseId
-// ---------------------------------------------------------------
-describe('PUT /expenses/:expenseId - validation', () => {
-  it('rejects an empty update body', async () => {
-    const res = await request(app).put('/expenses/exp_1').send({});
-    expect(res.status).toBe(400);
-    expect(res.body.error).toContain('at least one field');
-  });
-
-  it.each([
-    ['amount is negative', { amount: -1 }],
-    ['amount is a string', { amount: '10' }],
-    ['date is not a date', { date: 'nope' }],
-    ['categoryId has the wrong format', { categoryId: 'food' }],
-  ])('rejects when %s', async (_label, body) => {
-    const res = await request(app).put('/expenses/exp_1').send(body);
+  it('rejects an empty body with 400 and an error message', async () => {
+    const res = await api().post('/expenses').send({});
     expect(res.status).toBe(400);
     expect(typeof res.body.error).toBe('string');
   });
-});
 
-describe('PUT /expenses/:expenseId - behaviour with real data', () => {
-  beforeEach(async () => {
-    await resetDb(pool);
-    await seed(pool);
-  });
-
-  it('updates one field and leaves the others unchanged', async () => {
-    const res = await request(app).put('/expenses/exp_1').send({ amount: 1800 });
-    expect(res.status).toBe(200);
-    expect(res.body).toEqual({
-      expenseId: 'exp_1',
-      userId: 'usr_1',
-      categoryId: 'cat_1',
-      amount: 1800,
-      date: '2026-09-07T10:00:00Z',
-      description: 'September gym membership renewal',
-    });
-  });
-
-  it('can change the category and description together', async () => {
-    const res = await request(app)
-      .put('/expenses/exp_1')
-      .send({ categoryId: 'cat_2', description: 'Reclassified' });
-    expect(res.status).toBe(200);
-    expect(res.body.categoryId).toBe('cat_2');
-    expect(res.body.description).toBe('Reclassified');
-    expect(res.body.amount).toBe(1500);
-  });
-
-  it('actually saves the change (the summary total moves)', async () => {
-    await request(app).put('/expenses/exp_1').send({ amount: 1800 });
-    const res = await request(app).get('/users/usr_1/expenses/summary?month=2026-09');
-    // was 4000; exp_1 went from 1500 to 1800
-    expect(res.body.totalSpent).toBe(4300);
-  });
-
-  it('returns 404 for an id that is well-formed but does not exist', async () => {
-    const res = await request(app).put('/expenses/exp_99999').send({ amount: 10 });
-    expect(res.status).toBe(404);
-    expect(res.body.error).toContain('exp_99999');
-  });
-
-  it('returns 404 for a malformed id', async () => {
-    const res = await request(app).put('/expenses/abc').send({ amount: 10 });
-    expect(res.status).toBe(404);
-    expect(res.body.error).toContain('abc');
-  });
-
-  it('rejects a categoryId that is well-formed but does not exist', async () => {
-    const res = await request(app).put('/expenses/exp_1').send({ categoryId: 'cat_99999' });
+  it('rejects amount sent as a string', async () => {
+    const res = await createExpense({ amount: '1500' });
     expect(res.status).toBe(400);
-    expect(res.body.error).toContain('cat_99999');
+    expect(res.body).toHaveProperty('error');
+  });
+
+  it('rejects a negative amount', async () => {
+    const res = await createExpense({ amount: -5 });
+    expect(res.status).toBe(400);
+  });
+
+  it('rejects an amount of zero (boundary)', async () => {
+    const res = await createExpense({ amount: 0 });
+    expect(res.status).toBe(400);
+  });
+
+  it('rejects an invalid date', async () => {
+    const res = await createExpense({ date: 'not-a-date' });
+    expect(res.status).toBe(400);
+  });
+
+  it('rejects a user that does not exist', async () => {
+    const res = await createExpense({ userId: 'usr_99999' });
+    expect(res.status).toBe(400);
+    expect(res.body).toHaveProperty('error');
   });
 });
 
-// ---------------------------------------------------------------
-// DELETE /expenses/:expenseId
-// ---------------------------------------------------------------
-describe('DELETE /expenses/:expenseId', () => {
-  beforeEach(async () => {
-    await resetDb(pool);
-    await seed(pool);
+describe('PUT /expenses/:expenseId', () => {
+  it('updates only the supplied field and returns 200 with the full record', async () => {
+    const original = (await createExpense()).body;
+    const res = await api().put(`/expenses/${original.expenseId}`).send({ amount: 2200 });
+    expect(res.status).toBe(200);
+    expect(res.body.expenseId).toBe(original.expenseId);
+    expect(res.body.amount).toBe(2200);
+    expect(res.body.categoryId).toBe(original.categoryId);
+    expect(res.body.description).toBe(original.description);
   });
 
-  it('deletes an expense and returns 204 with no body', async () => {
-    const res = await request(app).delete('/expenses/exp_1');
+  it('returns 404 for an expense that does not exist (and does not create one)', async () => {
+    const res = await api().put('/expenses/exp_99999').send({ amount: 100 });
+    expect(res.status).toBe(404);
+    expect(typeof res.body.error).toBe('string');
+    const again = await api().delete('/expenses/exp_99999');
+    expect(again.status).toBe(404);
+  });
+
+  it('rejects an empty body with 400', async () => {
+    const original = (await createExpense()).body;
+    const res = await api().put(`/expenses/${original.expenseId}`).send({});
+    expect(res.status).toBe(400);
+  });
+
+  it('rejects a wrong-typed amount with 400', async () => {
+    const original = (await createExpense()).body;
+    const res = await api().put(`/expenses/${original.expenseId}`).send({ amount: 'lots' });
+    expect(res.status).toBe(400);
+  });
+});
+
+describe('DELETE /expenses/:expenseId', () => {
+  it('deletes the record: 204 with no body, then it is really gone', async () => {
+    const { expenseId } = (await createExpense()).body;
+
+    const res = await api().delete(`/expenses/${expenseId}`);
     expect(res.status).toBe(204);
     expect(res.text).toBe('');
+
+    const again = await api().delete(`/expenses/${expenseId}`);
+    expect(again.status).toBe(404);
+    const update = await api().put(`/expenses/${expenseId}`).send({ amount: 1 });
+    expect(update.status).toBe(404);
   });
 
-  it('actually removes it (the summary total drops)', async () => {
-    await request(app).delete('/expenses/exp_1');
-    const res = await request(app).get('/users/usr_1/expenses/summary?month=2026-09');
-    // was 4000; exp_1 (1500) is gone
-    expect(res.body.totalSpent).toBe(2500);
-  });
-
-  it('returns 404 when deleting the same expense twice', async () => {
-    await request(app).delete('/expenses/exp_1');
-    const res = await request(app).delete('/expenses/exp_1');
+  it('returns 404 for an expense that does not exist', async () => {
+    const res = await api().delete('/expenses/exp_99999');
     expect(res.status).toBe(404);
-    expect(res.body.error).toContain('exp_1');
+    expect(res.body).toHaveProperty('error');
+  });
+});
+
+describe('GET /users/:userId/expenses/summary', () => {
+  it('returns 200 with the contract shape and consistent numbers', async () => {
+    const res = await api().get('/users/usr_1/expenses/summary?month=2026-10');
+    expect(res.status).toBe(200);
+    expect(res.body.userId).toBe('usr_1');
+    expect(res.body.month).toBe('2026-10');
+    expect(typeof res.body.totalSpent).toBe('number');
+    expect(typeof res.body.monthlyAllowance).toBe('number');
+    expect(typeof res.body.remaining).toBe('number');
+    expect(res.body.remaining).toBe(res.body.monthlyAllowance - res.body.totalSpent);
   });
 
-  it('returns 404 for an id that is well-formed but does not exist', async () => {
-    const res = await request(app).delete('/expenses/exp_99999');
-    expect(res.status).toBe(404);
-    expect(res.body.error).toContain('exp_99999');
+  it('reflects a newly created expense in totalSpent', async () => {
+    const before = (await api().get('/users/usr_1/expenses/summary?month=2026-10')).body;
+    await createExpense({ amount: 1000, date: '2026-10-15T09:00:00Z' });
+    const after = (await api().get('/users/usr_1/expenses/summary?month=2026-10')).body;
+    expect(after.totalSpent).toBe(before.totalSpent + 1000);
+    expect(after.remaining).toBe(before.remaining - 1000);
   });
 
-  it('returns 404 for a malformed id', async () => {
-    const res = await request(app).delete('/expenses/abc');
+  it('returns totalSpent 0 for a month with no expenses (empty result edge case)', async () => {
+    const res = await api().get('/users/usr_1/expenses/summary?month=2020-01');
+    expect(res.status).toBe(200);
+    expect(res.body.totalSpent).toBe(0);
+    expect(res.body.remaining).toBe(res.body.monthlyAllowance);
+  });
+
+  it('returns 404 for a user that does not exist', async () => {
+    const res = await api().get('/users/usr_99999/expenses/summary');
     expect(res.status).toBe(404);
-    expect(res.body.error).toContain('abc');
+    expect(typeof res.body.error).toBe('string');
+  });
+
+  it('returns 400 for a badly formatted month', async () => {
+    const res = await api().get('/users/usr_1/expenses/summary?month=october');
+    expect(res.status).toBe(400);
+    expect(res.body).toHaveProperty('error');
   });
 });

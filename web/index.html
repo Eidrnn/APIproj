@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>FitCoach: Campus Events</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 640px; margin: 2rem auto; padding: 0 1rem; }
+    li { margin: 0.75rem 0; }
+    .meta { color: #555; font-size: 0.9rem; }
+    #msg { color: #b00020; }
+  </style>
+</head>
+<body>
+  <h1>Campus events</h1>
+  <p class="meta">Live data from the CampusCore API, fetched through our own server.</p>
+  <button id="reload">Reload</button>
+  <p id="msg"></p>
+  <ul id="list"></ul>
+
+  <script>
+    async function loadEvents() {
+      const list = document.getElementById('list');
+      const msg = document.getElementById('msg');
+      list.textContent = '';
+      msg.textContent = '';
+
+      try {
+        // Our own route: no key in the page, the server holds any credentials
+        const res = await fetch('/partner-data');
+        if (!res.ok) throw new Error('status ' + res.status);
+        const events = await res.json();
+
+        if (events.length === 0) {
+          msg.textContent = 'No events to show right now.';
+          return;
+        }
+        for (const e of events) {
+          const li = document.createElement('li');
+          const title = document.createElement('strong');
+          title.textContent = e.title; // textContent, never innerHTML: partner data is untrusted
+          const meta = document.createElement('div');
+          meta.className = 'meta';
+          const when = e.startTime ? new Date(e.startTime).toLocaleDateString() : 'date unknown';
+          meta.textContent = (e.location || 'location unknown') + ' | ' + when;
+          li.append(title, meta);
+          list.append(li);
+        }
+      } catch (err) {
+        msg.textContent = 'Partner data is unavailable right now';
+      }
+    }
+
+    document.getElementById('reload').addEventListener('click', loadEvents);
+    loadEvents();
+  </script>
+</body>
+</html>

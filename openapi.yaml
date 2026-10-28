@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: FitCoach Expenditure Tracker API
-  version: 1.1.0
+  version: 1.2.0
   description: >
     API for tracking fitness-related expenses against a user's monthly
     allowance. Covers user profiles, expense categories, and full CRUD
@@ -10,6 +10,10 @@ info:
 
     **Authentication:** every request must include your API key in the
     `X-API-Key` header. Requests without a valid key get `401`.
+
+
+    **Rate limit:** 100 requests per minute per API key. Beyond that you get
+    `429` with a `Retry-After` header (seconds until you may try again).
 
 
     **IDs** are strings with a prefix: users `usr_<number>`, categories
@@ -40,6 +44,8 @@ paths:
                   $ref: '#/components/schemas/User'
         '401':
           $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
 
   /users/{userId}:
     get:
@@ -55,6 +61,8 @@ paths:
                 $ref: '#/components/schemas/User'
         '401':
           $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         '404':
           description: No user found with the given userId
           content:
@@ -81,6 +89,8 @@ paths:
                   $ref: '#/components/schemas/Category'
         '401':
           $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
 
   # ============================================================
   # EXPENSES — create
@@ -113,6 +123,8 @@ paths:
                 error: "amount is required and must be a positive number"
         '401':
           $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
 
   # ============================================================
   # EXPENSES — update / delete a single record
@@ -149,6 +161,8 @@ paths:
                 error: "provide at least one field to update"
         '401':
           $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         '404':
           $ref: '#/components/responses/ExpenseNotFound'
 
@@ -161,6 +175,8 @@ paths:
           description: Expense record deleted successfully (no content returned)
         '401':
           $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         '404':
           $ref: '#/components/responses/ExpenseNotFound'
 
@@ -199,6 +215,8 @@ paths:
                 error: "month must be formatted as YYYY-MM"
         '401':
           $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         '404':
           description: No user found with the given userId
           content:
@@ -244,6 +262,27 @@ components:
             $ref: '#/components/schemas/Error'
           example:
             error: "Missing or invalid API key"
+    TooManyRequests:
+      description: Rate limit exceeded (100 requests per minute per key)
+      headers:
+        Retry-After:
+          description: Seconds to wait before trying again
+          schema:
+            type: integer
+            example: 42
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [error, retryAfter]
+            properties:
+              error:
+                type: string
+                example: "Too many requests"
+              retryAfter:
+                type: integer
+                description: Seconds until the limit resets
+                example: 42
     ExpenseNotFound:
       description: No expense record found with the given expenseId
       content:

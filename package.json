@@ -3,14 +3,14 @@
   "version": "1.0.0",
   "description": "FitCoach backend — registration, login, and subscription management, with a SQLite database.",
   "main": "server.js",
- "scripts": {
-  "start": "node server.js",
-  "test": "jest --runInBand"
-},
+  "scripts": {
+    "start": "node server.js",
+    "test": "jest --runInBand"
+  },
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.6",
-    "dotenv": "^18.0.8",
+    "dotenv": "^18.0.9",
     "express": "^4.19.2",
     "express-session": "^1.18.0",
     "mysql2": "^3.24.6"

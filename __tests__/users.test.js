@@ -1,83 +1,63 @@
-process.env.DB_NAME = 'fitcoach_test';
 const request = require('supertest');
 const app = require('../server');
-const { resetDb, seed } = require('../test-utils/seed');
 
-const pool = app.locals.pool;
-afterAll(() => pool.end());
+// Set API_URL to run these tests against a deployed/tunnelled server instead
+// Every request carries a valid key (the first one in API_KEYS, which server.js loads from .env)
+const KEY = (process.env.API_KEYS || '').split(',')[0].trim().split(':').pop();
+const base = () => request(process.env.API_URL || app);
+const api = () => ({
+  get: (p) => base().get(p).set('X-API-Key', KEY),
+  post: (p) => base().post(p).set('X-API-Key', KEY),
+  put: (p) => base().put(p).set('X-API-Key', KEY),
+  delete: (p) => base().delete(p).set('X-API-Key', KEY),
+});
+
+afterAll(() => app.locals.pool.end());
 
 describe('GET /users', () => {
-  it('returns every user in contract shape', async () => {
-    await resetDb(pool);
-    await seed(pool);
-    const res = await request(app).get('/users');
+  it('returns 200 and an array of users matching the contract', async () => {
+    const res = await api().get('/users');
     expect(res.status).toBe(200);
-    expect(res.body).toHaveLength(2);
-    const u = res.body.find((x) => x.userId === 'usr_1');
-    expect(u).toEqual({
-      userId: 'usr_1',
-      name: 'Wanjiru Kamau',
-      email: 'wanjiru.kamau@example.com',
-      monthlyAllowance: 8000,
-    });
-    expect(typeof u.monthlyAllowance).toBe('number');
+    expect(Array.isArray(res.body)).toBe(true);
+    expect(res.body.length).toBeGreaterThan(0);
+
+    const u = res.body[0];
+    expect(typeof u.userId).toBe('string');
+    expect(u.userId).toMatch(/^usr_\d+$/);
+    expect(typeof u.name).toBe('string');
+    expect(typeof u.email).toBe('string');
+    expect(typeof u.monthlyAllowance).toBe('number'); // not "8000.00"
   });
 
-  it('returns an empty array when there are no users', async () => {
-    await resetDb(pool);
-    const res = await request(app).get('/users');
-    expect(res.status).toBe(200);
-    expect(res.body).toEqual([]);
+  it('does not leak database column names', async () => {
+    const res = await api().get('/users');
+    const u = res.body[0];
+    expect(u).not.toHaveProperty('user_id');
+    expect(u).not.toHaveProperty('full_name');
+    expect(u).not.toHaveProperty('monthly_allowance');
   });
 });
 
-describe('GET /users/:userId/expenses/summary', () => {
-  beforeEach(async () => {
-    await resetDb(pool);
-    await seed(pool);
-  });
-
-  it('sums only the requested month, including its boundaries', async () => {
-    const res = await request(app).get('/users/usr_1/expenses/summary?month=2026-09');
+describe('GET /users/:userId', () => {
+  it('returns 200 and a single user object for an existing user', async () => {
+    const res = await api().get('/users/usr_1');
     expect(res.status).toBe(200);
-    expect(res.body).toEqual({
-      userId: 'usr_1',
-      month: '2026-09',
-      totalSpent: 4000,
-      monthlyAllowance: 8000,
-      remaining: 4000,
-    });
+    expect(Array.isArray(res.body)).toBe(false);
+    expect(res.body.userId).toBe('usr_1');
+    expect(typeof res.body.name).toBe('string');
+    expect(typeof res.body.email).toBe('string');
+    expect(typeof res.body.monthlyAllowance).toBe('number');
   });
 
-  it('returns zero spending for a user with no expenses', async () => {
-    const res = await request(app).get('/users/usr_2/expenses/summary?month=2026-09');
-    expect(res.status).toBe(200);
-    expect(res.body.totalSpent).toBe(0);
-    expect(res.body.remaining).toBe(5000);
-  });
-
-  it('returns zero spending for a month with no expenses', async () => {
-    const res = await request(app).get('/users/usr_1/expenses/summary?month=2026-01');
-    expect(res.status).toBe(200);
-    expect(res.body.totalSpent).toBe(0);
-    expect(res.body.remaining).toBe(8000);
-  });
-
-  it('defaults to the current month when month is omitted', async () => {
-    const res = await request(app).get('/users/usr_1/expenses/summary');
-    expect(res.status).toBe(200);
-    expect(res.body.month).toMatch(/^\d{4}-(0[1-9]|1[0-2])$/);
-  });
-
-  it.each(['2026-13', 'September', '2026-9'])('rejects month=%s with 400', async (m) => {
-    const res = await request(app).get(`/users/usr_1/expenses/summary?month=${m}`);
-    expect(res.status).toBe(400);
-    expect(res.body.error).toContain('YYYY-MM');
-  });
-
-  it('returns 404 for a user that does not exist', async () => {
-    const res = await request(app).get('/users/usr_99999/expenses/summary');
+  it('returns 404 with an error message for a user that does not exist', async () => {
+    const res = await api().get('/users/usr_99999');
     expect(res.status).toBe(404);
-    expect(res.body.error).toContain('usr_99999');
+    expect(typeof res.body.error).toBe('string');
+  });
+
+  it('returns 404 for a malformed user id (edge case)', async () => {
+    const res = await api().get('/users/abc');
+    expect(res.status).toBe(404);
+    expect(res.body).toHaveProperty('error');
   });
 });

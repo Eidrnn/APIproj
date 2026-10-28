@@ -10,14 +10,33 @@ Built by Team 8 with Node.js, Express, and MySQL. The full contract is in
 
 ## Authentication
 
-Every request needs an API key in the `X-API-Key` header. Your key is issued to
-you privately by the API owner. Requests with a missing or wrong key get:
+Every endpoint of the API described here requires an API key in the `X-API-Key` header.
+(The only open route is `GET /partner-data` and the demo page at `/`, which show public
+campus-event data fetched from another team's API. They are not part of this contract.)
+Each consumer gets its own key, issued to you privately by the API owner. Never put
+your key in browser code, in git, or in a README.
+
+```bash
+curl -H "X-API-Key: <your-api-key>" <base-url>/categories
+```
+
+A request with a missing or wrong key is rejected before anything else happens:
 
 ```
 401 { "error": "Missing or invalid API key" }
 ```
 
-Keep your key out of browser code and out of git.
+## Rate limit
+
+Each key may make **100 requests per minute**. Past that, the API answers `429` with a
+`Retry-After` header (seconds until you may try again) and a JSON body:
+
+```
+429 { "error": "Too many requests", "retryAfter": 42 }
+```
+
+A well-behaved client waits for `Retry-After` seconds and then retries. The limit is
+counted in server memory, so it resets when the server restarts.
 
 ## Quickstart
 
@@ -184,6 +203,7 @@ Every error response is JSON with a single `error` string:
 |---|---|
 | `400` | Invalid or missing fields, bad `month`, or a `userId`/`categoryId` that does not exist |
 | `401` | Missing or invalid `X-API-Key` |
+| `429` | Rate limit exceeded; see the `Retry-After` header |
 | `404` | The user or expense in the path does not exist |
 | `500` | Unexpected server error |
 
@@ -215,7 +235,8 @@ You need Node.js 18 or newer and MySQL 8, with the MySQL server running.
    ```
 
    Set `DB_PASSWORD` to your MySQL password. Generate an API key and put it on
-   the `API_KEYS=` line:
+   the `API_KEYS=` line (use one key per consumer, comma-separated). Optionally set
+   `RATE_LIMIT_MAX` to change the per-minute limit:
 
    ```bash
    node -e "console.log(require('crypto').randomBytes(24).toString('hex'))"
